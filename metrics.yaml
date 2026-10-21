@@ -1,0 +1,108 @@
+version: 1
+
+metrics:
+  gmv:
+    name: "Gross Merchandise Value (GMV)"
+    description: "Total revenue generated from item prices for delivered orders. Excludes freight value unless explicitly requested."
+    sql_expression: "SUM(oi.price)"
+    grain: "order"
+    filters:
+      - "orders.order_status = 'delivered'"
+    tables:
+      - "orders"
+      - "order_items"
+    joins:
+      - "orders.order_id = order_items.order_id"
+    known_pitfalls:
+      - "Do NOT join order_items to order_payments directly; doing so causes a many-to-many Cartesian fan-out that drastically inflates revenue."
+      - "Always filter for order_status = 'delivered'; unfulfilled or canceled orders do not count toward recognized GMV."
+      - "Do not include freight_value in GMV unless the query explicitly asks for gross shipping or landed costs."
+
+  order_count:
+    name: "Order Count"
+    description: "Total count of distinct delivered orders placed within the time period."
+    sql_expression: "COUNT(DISTINCT orders.order_id)"
+    grain: "order"
+    filters:
+      - "orders.order_status = 'delivered'"
+    tables:
+      - "orders"
+    joins: []
+    known_pitfalls:
+      - "Do not use COUNT(*) when joining orders to order_items, because multi-item orders will be counted multiple times. Always use COUNT(DISTINCT orders.order_id)."
+      - "Filter for order_status = 'delivered'."
+
+  aov:
+    name: "Average Order Value (AOV)"
+    description: "Average GMV per delivered order (Total Item Price / Distinct Delivered Orders)."
+    sql_expression: "SUM(oi.price) / COUNT(DISTINCT orders.order_id)"
+    grain: "order"
+    filters:
+      - "orders.order_status = 'delivered'"
+    tables:
+      - "orders"
+      - "order_items"
+    joins:
+      - "orders.order_id = order_items.order_id"
+    known_pitfalls:
+      - "Calculating AVG(price) calculates Average Item Price, NOT Average Order Value. Orders often contain multiple items."
+      - "Must aggregate price per order first, or divide SUM(oi.price) by COUNT(DISTINCT orders.order_id)."
+
+  delivered_order_rate:
+    name: "Delivered Order Rate"
+    description: "Proportion of all orders that reach 'delivered' status."
+    sql_expression: "COUNT(*) FILTER (WHERE order_status = 'delivered')::DOUBLE / COUNT(*)"
+    grain: "order"
+    filters: []
+    tables:
+      - "orders"
+    joins: []
+    known_pitfalls:
+      - "Do not filter by order_status in the WHERE clause when calculating this rate, as doing so removes non-delivered orders from the denominator."
+      - "Denominator must include all orders placed in the reference period."
+
+  avg_review_score:
+    name: "Average Review Score"
+    description: "Average customer feedback score (1 to 5) given on delivered orders."
+    sql_expression: "AVG(order_reviews.review_score)"
+    grain: "order"
+    filters:
+      - "orders.order_status = 'delivered'"
+    tables:
+      - "orders"
+      - "order_reviews"
+    joins:
+      - "orders.order_id = order_reviews.order_id"
+    known_pitfalls:
+      - "Not all orders receive reviews, so COUNT(review_score) is smaller than total orders."
+      - "Some orders may receive multiple reviews or review updates; joining to reviews can slightly expand order rows unless distinct order review averages are taken."
+
+  repeat_customer_rate:
+    name: "Repeat Customer Rate"
+    description: "Percentage of unique customers (identified by customer_unique_id) who have placed more than one delivered order."
+    sql_expression: "COUNT(*) FILTER (WHERE order_cnt > 1)::DOUBLE / COUNT(*)"
+    grain: "customer"
+    filters:
+      - "orders.order_status = 'delivered'"
+    tables:
+      - "customers"
+      - "orders"
+    joins:
+      - "customers.customer_id = orders.customer_id"
+    known_pitfalls:
+      - "Olist creates a new customer_id for every order. You MUST group by customer_unique_id to identify distinct returning human buyers."
+      - "Filtering only by customer_id will report 0% repeat rate because customer_id is strictly 1:1 per order."
+
+  on_time_delivery_rate:
+    name: "On-Time Delivery Rate"
+    description: "Percentage of delivered orders where actual delivery timestamp was on or before estimated delivery timestamp."
+    sql_expression: "COUNT(*) FILTER (WHERE order_delivered_customer_date <= order_estimated_delivery_date)::DOUBLE / COUNT(*) FILTER (WHERE order_delivered_customer_date IS NOT NULL AND order_estimated_delivery_date IS NOT NULL)"
+    grain: "order"
+    filters:
+      - "orders.order_status = 'delivered'"
+    tables:
+      - "orders"
+    joins: []
+    known_pitfalls:
+      - "Timestamps must be parsed as TIMESTAMP, not strings, or string comparisons will fail if formatting differs."
+      - "Exclude orders where delivery timestamp or estimated date is null."
