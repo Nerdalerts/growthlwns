@@ -7,3 +7,28 @@ This log tracks every discrepancy, bug, failure mode, and resolution encountered
 ## Initial Setup & Baseline
 - **Date:** 2026-10-22
 - **Action:** Initialized repository with base GrowthLens code and real Olist dataset files. Verified environment dependencies: Python 3.13, DuckDB 2.0.0, sqlglot 30.24.0, Anthropic SDK 2.0.0, Streamlit 1.56.0, pandas 2.3.3, scipy 1.16.2, pytest 9.0.3.
+
+## Milestone 0: Repo Audit
+- **Date:** 2026-10-22
+- **Audit Findings:**
+  1. **Metric Discrepancies:**
+     - In `data/loader.py`, GMV is calculated as `sum(price)` across `delivered` orders.
+     - In `data/olist_loader.py`, revenue is calculated as `price + freight_value`.
+     - In `data/loader.py`, DAU and MAU are synthetic heuristics (`orders * 8` and `dau * 7.2`) because Olist is an order database without web session logs. Questions about DAU/MAU must be marked out-of-scope/refused in SQL Q&A since clickstream data does not exist in Olist.
+  2. **Data Layer:**
+     - 8 core CSVs identified in `data/olist_raw/`. All row counts verified: customers (99,441), items (112,650), payments (103,886), reviews (99,224), orders (99,441), products (32,951), sellers (3,095), category translations (71).
+  3. **Risks Addressed:**
+     - Join fan-out between `order_items` and `order_payments`.
+     - Forced `order_status = 'delivered'` filter for standard metrics.
+     - ISO timestamp string parsing in DuckDB.
+
+## Milestone 1: Data Layer
+- **Date:** 2026-10-22
+- **Completed:** Implemented `copilot/data/build.py` and `tests/test_data_build.py`. Loaded 8 Olist tables into DuckDB at `data/olist.duckdb`.
+- **What Broke #1 (Encoding):** `UnicodeEncodeError: 'charmap' codec can't encode character '\u2713'`.
+  - *How Found:* Running `python -m copilot.data.build` in Windows PowerShell (default cp1252 code page).
+  - *How Fixed:* Replaced unicode checkmarks with ASCII `[OK]` and `[MISMATCH]`.
+- **What Broke #2 (CSV Line Counting):** `order_reviews` showed 99,224 rows in DuckDB vs 104,719 rows in line-by-line file read.
+  - *How Found:* `build_database` row-count validation reported a mismatch for `order_reviews`.
+  - *How Fixed:* The raw CSV contains embedded newline characters `\n` inside quoted review comments (`review_comment_message`). Switched row-counter to standard `csv.reader()`, which accurately parses multiline quoted records and verified exactly 99,224 rows.
+- **Tests Passed:** All 3 unit tests in `tests/test_data_build.py` passed (testing data dir location, schema data types, row counts, and idempotency).
