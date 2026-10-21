@@ -247,7 +247,6 @@ def run_metric_qa(
     execution_error: Optional[str] = None
 
     try:
-        con.execute("SET statement_timeout = '10000ms'")
         df = con.execute(sanitized_sql).df()
     except Exception as db_err:
         execution_error = str(db_err)

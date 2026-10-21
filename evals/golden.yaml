@@ -1,0 +1,240 @@
+version: 1
+questions:
+  # -------------------------------------------------------------
+  # Category: simple_aggregate (6 questions)
+  # -------------------------------------------------------------
+  - id: "agg_01"
+    question: "How many delivered orders are in the dataset?"
+    category: "simple_aggregate"
+    difficulty: "easy"
+    should_refuse: false
+    ground_truth_sql: "SELECT COUNT(*) AS total_delivered FROM orders WHERE order_status = 'delivered'"
+
+  - id: "agg_02"
+    question: "What is the total Gross Merchandise Value (GMV) across all delivered orders?"
+    category: "simple_aggregate"
+    difficulty: "easy"
+    should_refuse: false
+    ground_truth_sql: "SELECT ROUND(SUM(oi.price), 2) AS total_gmv FROM orders o JOIN order_items oi ON o.order_id = oi.order_id WHERE o.order_status = 'delivered'"
+
+  - id: "agg_03"
+    question: "What is the total freight cost paid across all delivered orders?"
+    category: "simple_aggregate"
+    difficulty: "easy"
+    should_refuse: false
+    ground_truth_sql: "SELECT ROUND(SUM(oi.freight_value), 2) AS total_freight FROM orders o JOIN order_items oi ON o.order_id = oi.order_id WHERE o.order_status = 'delivered'"
+
+  - id: "agg_04"
+    question: "How many total registered customer order profiles exist in the customers table?"
+    category: "simple_aggregate"
+    difficulty: "easy"
+    should_refuse: false
+    ground_truth_sql: "SELECT COUNT(*) AS total_customers FROM customers"
+
+  - id: "agg_05"
+    question: "How many distinct sellers are registered on the platform?"
+    category: "simple_aggregate"
+    difficulty: "easy"
+    should_refuse: false
+    ground_truth_sql: "SELECT COUNT(DISTINCT seller_id) AS distinct_sellers FROM sellers"
+
+  - id: "agg_06"
+    question: "What is the highest single item price sold in delivered orders?"
+    category: "simple_aggregate"
+    difficulty: "easy"
+    should_refuse: false
+    ground_truth_sql: "SELECT MAX(oi.price) AS max_price FROM orders o JOIN order_items oi ON o.order_id = oi.order_id WHERE o.order_status = 'delivered'"
+
+  # -------------------------------------------------------------
+  # Category: join (7 questions)
+  # -------------------------------------------------------------
+  - id: "join_01"
+    question: "What is the total GMV for the top 5 customer states?"
+    category: "join"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT c.customer_state, ROUND(SUM(oi.price), 2) AS state_gmv FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN customers c ON o.customer_id = c.customer_id WHERE o.order_status = 'delivered' GROUP BY c.customer_state ORDER BY state_gmv DESC LIMIT 5"
+
+  - id: "join_02"
+    question: "What are the top 5 product categories by total item revenue in English?"
+    category: "join"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT COALESCE(t.product_category_name_english, p.product_category_name, 'Other') AS category_en, ROUND(SUM(oi.price), 2) AS total_revenue FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id LEFT JOIN product_category_name_translation t ON p.product_category_name = t.product_category_name WHERE o.order_status = 'delivered' GROUP BY 1 ORDER BY total_revenue DESC LIMIT 5"
+
+  - id: "join_03"
+    question: "How many delivered orders were shipped by sellers in São Paulo (SP)?"
+    category: "join"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT COUNT(DISTINCT o.order_id) AS sp_seller_orders FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN sellers s ON oi.seller_id = s.seller_id WHERE o.order_status = 'delivered' AND s.seller_state = 'SP'"
+
+  - id: "join_04"
+    question: "What is the average review score for delivered orders by payment type?"
+    category: "join"
+    difficulty: "hard"
+    should_refuse: false
+    ground_truth_sql: "WITH order_primary_pay AS (SELECT order_id, payment_type FROM order_payments GROUP BY order_id, payment_type) SELECT op.payment_type, ROUND(AVG(r.review_score), 4) AS avg_review_score FROM orders o JOIN order_primary_pay op ON o.order_id = op.order_id JOIN order_reviews r ON o.order_id = r.order_id WHERE o.order_status = 'delivered' GROUP BY op.payment_type ORDER BY avg_review_score DESC"
+
+  - id: "join_05"
+    question: "How many total item units were sold in the 'beleza_saude' category?"
+    category: "join"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT COUNT(*) AS total_units FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id WHERE o.order_status = 'delivered' AND p.product_category_name = 'beleza_saude'"
+
+  - id: "join_06"
+    question: "How many distinct delivered orders were placed by customers in Rio de Janeiro (RJ)?"
+    category: "join"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT COUNT(DISTINCT o.order_id) AS rj_orders FROM orders o JOIN customers c ON o.customer_id = c.customer_id WHERE o.order_status = 'delivered' AND c.customer_state = 'RJ'"
+
+  - id: "join_07"
+    question: "What is the total GMV from sellers located in Rio de Janeiro (RJ)?"
+    category: "join"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT ROUND(SUM(oi.price), 2) AS rj_seller_gmv FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN sellers s ON oi.seller_id = s.seller_id WHERE o.order_status = 'delivered' AND s.seller_state = 'RJ'"
+
+  # -------------------------------------------------------------
+  # Category: time_series (7 questions)
+  # -------------------------------------------------------------
+  - id: "ts_01"
+    question: "What was monthly GMV in 2017?"
+    category: "time_series"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT DATE_TRUNC('month', o.order_purchase_timestamp) AS order_month, ROUND(SUM(oi.price), 2) AS monthly_gmv FROM orders o JOIN order_items oi ON o.order_id = oi.order_id WHERE o.order_status = 'delivered' AND o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY 1"
+
+  - id: "ts_02"
+    question: "What was the monthly count of delivered orders in 2017?"
+    category: "time_series"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT DATE_TRUNC('month', o.order_purchase_timestamp) AS order_month, COUNT(DISTINCT o.order_id) AS order_count FROM orders o WHERE o.order_status = 'delivered' AND o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY 1"
+
+  - id: "ts_03"
+    question: "What was the monthly Average Order Value (AOV) in 2017?"
+    category: "time_series"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT DATE_TRUNC('month', o.order_purchase_timestamp) AS order_month, ROUND(SUM(oi.price) / COUNT(DISTINCT o.order_id), 2) AS monthly_aov FROM orders o JOIN order_items oi ON o.order_id = oi.order_id WHERE o.order_status = 'delivered' AND o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY 1"
+
+  - id: "ts_04"
+    question: "How many delivered orders were placed in each quarter of 2017?"
+    category: "time_series"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT DATE_TRUNC('quarter', o.order_purchase_timestamp) AS order_quarter, COUNT(DISTINCT o.order_id) AS quarter_orders FROM orders o WHERE o.order_status = 'delivered' AND o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY 1"
+
+  - id: "ts_05"
+    question: "What was monthly GMV for the 'beleza_saude' category in 2017?"
+    category: "time_series"
+    difficulty: "hard"
+    should_refuse: false
+    ground_truth_sql: "SELECT DATE_TRUNC('month', o.order_purchase_timestamp) AS order_month, ROUND(SUM(oi.price), 2) AS category_gmv FROM orders o JOIN order_items oi ON o.order_id = oi.order_id JOIN products p ON oi.product_id = p.product_id WHERE o.order_status = 'delivered' AND p.product_category_name = 'beleza_saude' AND o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY 1"
+
+  - id: "ts_06"
+    question: "How many delivered orders were placed on Black Friday, November 24, 2017?"
+    category: "time_series"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT COUNT(DISTINCT order_id) AS black_friday_orders FROM orders WHERE order_status = 'delivered' AND CAST(order_purchase_timestamp AS DATE) = '2017-11-24'"
+
+  - id: "ts_07"
+    question: "What was the monthly average review score across delivered orders in 2017?"
+    category: "time_series"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT DATE_TRUNC('month', o.order_purchase_timestamp) AS review_month, ROUND(AVG(r.review_score), 4) AS avg_score FROM orders o JOIN order_reviews r ON o.order_id = r.order_id WHERE o.order_status = 'delivered' AND o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01' GROUP BY 1 ORDER BY 1"
+
+  # -------------------------------------------------------------
+  # Category: ratio (6 questions)
+  # -------------------------------------------------------------
+  - id: "ratio_01"
+    question: "What was the overall Average Order Value (AOV) for delivered orders in 2017?"
+    category: "ratio"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT ROUND(SUM(oi.price) / COUNT(DISTINCT o.order_id), 2) AS aov_2017 FROM orders o JOIN order_items oi ON o.order_id = oi.order_id WHERE o.order_status = 'delivered' AND o.order_purchase_timestamp >= '2017-01-01' AND o.order_purchase_timestamp < '2018-01-01'"
+
+  - id: "ratio_02"
+    question: "What is the overall delivered order rate across all orders?"
+    category: "ratio"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT ROUND(COUNT(*) FILTER (WHERE order_status = 'delivered')::DOUBLE / COUNT(*), 4) AS delivered_rate FROM orders"
+
+  - id: "ratio_03"
+    question: "What percentage of delivered orders arrived on or before the estimated delivery date?"
+    category: "ratio"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT ROUND(COUNT(*) FILTER (WHERE order_delivered_customer_date <= order_estimated_delivery_date)::DOUBLE / COUNT(*) FILTER (WHERE order_delivered_customer_date IS NOT NULL AND order_estimated_delivery_date IS NOT NULL), 4) AS on_time_rate FROM orders WHERE order_status = 'delivered'"
+
+  - id: "ratio_04"
+    question: "What is the repeat customer rate among unique human customers for delivered orders?"
+    category: "ratio"
+    difficulty: "hard"
+    should_refuse: false
+    ground_truth_sql: "WITH customer_orders AS (SELECT c.customer_unique_id, COUNT(DISTINCT o.order_id) AS order_cnt FROM customers c JOIN orders o ON c.customer_id = o.customer_id WHERE o.order_status = 'delivered' GROUP BY c.customer_unique_id) SELECT ROUND(COUNT(*) FILTER (WHERE order_cnt > 1)::DOUBLE / COUNT(*), 4) AS repeat_rate FROM customer_orders"
+
+  - id: "ratio_05"
+    question: "What is the average number of items per delivered order?"
+    category: "ratio"
+    difficulty: "medium"
+    should_refuse: false
+    ground_truth_sql: "SELECT ROUND(COUNT(*)::DOUBLE / COUNT(DISTINCT o.order_id), 4) AS avg_items_per_order FROM orders o JOIN order_items oi ON o.order_id = oi.order_id WHERE o.order_status = 'delivered'"
+
+  - id: "ratio_06"
+    question: "What percentage of distinct delivered orders were paid using a credit card?"
+    category: "ratio"
+    difficulty: "hard"
+    should_refuse: false
+    ground_truth_sql: "WITH order_methods AS (SELECT DISTINCT order_id, payment_type FROM order_payments) SELECT ROUND(COUNT(DISTINCT om.order_id)::DOUBLE / (SELECT COUNT(DISTINCT order_id) FROM orders WHERE order_status = 'delivered'), 4) AS credit_card_order_share FROM orders o JOIN order_methods om ON o.order_id = om.order_id WHERE o.order_status = 'delivered' AND om.payment_type = 'credit_card'"
+
+  # -------------------------------------------------------------
+  # Category: refusal (6 questions)
+  # -------------------------------------------------------------
+  - id: "ref_01"
+    question: "What was our customer acquisition cost (CAC) in 2017?"
+    category: "refusal"
+    difficulty: "easy"
+    should_refuse: true
+    ground_truth_sql: null
+
+  - id: "ref_02"
+    question: "What was our daily active users (DAU) stickiness on the mobile app?"
+    category: "refusal"
+    difficulty: "easy"
+    should_refuse: true
+    ground_truth_sql: null
+
+  - id: "ref_03"
+    question: "What percentage of orders were returned due to defective items?"
+    category: "refusal"
+    difficulty: "easy"
+    should_refuse: true
+    ground_truth_sql: null
+
+  - id: "ref_04"
+    question: "Which digital marketing ad campaign generated the highest click-through rate?"
+    category: "refusal"
+    difficulty: "easy"
+    should_refuse: true
+    ground_truth_sql: null
+
+  - id: "ref_05"
+    question: "What was our gross profit margin after subtracting wholesale COGS?"
+    category: "refusal"
+    difficulty: "easy"
+    should_refuse: true
+    ground_truth_sql: null
+
+  - id: "ref_06"
+    question: "What was our warehouse inventory turnover rate in Q3 2017?"
+    category: "refusal"
+    difficulty: "easy"
+    should_refuse: true
+    ground_truth_sql: null

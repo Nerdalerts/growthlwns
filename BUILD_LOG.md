@@ -84,3 +84,17 @@ This log tracks every discrepancy, bug, failure mode, and resolution encountered
   - Narrative number check verified: prevents ungrounded numbers from displaying in narrative.
   - Admin metrics verified to match direct SQL counts on `usage.db`.
 - **Tests Passed:** All 38 tests across all modules passed.
+
+## Milestone 6: Evaluation Harness & Golden Set
+- **Date:** 2026-10-22
+- **Completed:** Created `evals/golden.yaml` with 32 hand-verified golden questions across 5 categories (`simple_aggregate`, `join`, `time_series`, `ratio`, `refusal`). Implemented `evals/run.py` supporting order-insensitive dataframe comparison, failure taxonomy diagnosis, and markdown/CSV report generation. Added `tests/test_eval_harness.py`.
+- **What Broke (DuckDB Timeout Parameter):**
+  - *Error:* `Catalog Error: unrecognized configuration parameter "statement_timeout"`.
+  - *How Found:* Detected by `evals/run.py` during query execution.
+  - *How Fixed:* Removed the Postgres-style `SET statement_timeout` command from the embedded DuckDB connection.
+- **Baseline Report Generated (`evals/reports/v1.md`):**
+  - Golden Questions: 32
+  - Result Accuracy: 84.4% (27/32)
+  - Execution Success Rate: 96.9% (31/32)
+  - Refusal Correctness: 83.3% (5/6)
+  - Failure Taxonomy: `wrong_filter` (60%), `should_not_have_refused` (20%), `should_have_refused` (20%).
