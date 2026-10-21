@@ -115,3 +115,14 @@ This log tracks every discrepancy, bug, failure mode, and resolution encountered
 - **Key Takeaways & Taxonomy Resolutions:**
   1. *Prompt v2:* Fixed freight `wrong_filter` by mandating `order_status = 'delivered'`, and fixed DAU `should_have_refused` by strictly listing web traffic metrics as unanswerable. Result accuracy jumped from 84.4% to 93.8%.
   2. *Prompt v3:* Fixed repeat customer rate by requiring `customers.customer_unique_id` instead of order-level `customer_id`. Ratio category accuracy reached 100%.
+
+## Milestone 8: Experiment Reader Skill & Statistical Engine
+- **Date:** 2026-10-22
+- **Completed:** Implemented `copilot/stats.py` and `copilot/skills/experiment_reader.py`. Added comprehensive test suite in `tests/test_stats.py`.
+- **Statistical Functionality Verified:**
+  1. *Two-Proportion Z-Test:* Computes control and variant conversion rates, relative uplift, pooled variance, z-score, two-tailed p-value, and unpooled 95% confidence intervals.
+  2. *Sample Ratio Mismatch (SRM) Detection:* Chi-squared goodness-of-fit test against intended allocation ratio (p < 0.001 flags SRM).
+  3. *Power & MDE Analysis:* Evaluates whether observed effect size is detectable at 80% power, flagging underpowered tests.
+  4. *Welch's T-Test:* Continuous metric comparison (AOV, Revenue per User) with unequal sample variances and Welch-Satterthwaite degrees of freedom.
+- **Verification:**
+  - 10 hand-checked test cases passed, including clear winners (Ship), clear losers (Do Not Ship), inconclusive results, SRM detection, underpowered tests, and borderline p-values.
