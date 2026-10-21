@@ -50,3 +50,16 @@ This log tracks every discrepancy, bug, failure mode, and resolution encountered
   - On-Time Delivery Rate: 94.71% (0.9471)
   - Repeat Customer Rate (in-month): 1.36% (0.0136)
 - **Tests Passed:** All 6 unit tests in `tests/` passed cleanly.
+
+## Milestone 3: SQL Guard & LLM Wrapper
+- **Date:** 2026-10-22
+- **Completed:** Implemented `copilot/sql_guard.py` using `sqlglot` AST parsing and `copilot/llm.py` with provider-agnostic structured JSON calls, schema validation, and single automatic retry. Added adversarial test suite `tests/test_sql_guard.py` and `tests/test_llm.py`.
+- **Security & Guardrail Verification:**
+  - Blocked DDL & DML: DROP, DELETE, UPDATE, INSERT statements cleanly rejected with `SQLGuardError`.
+  - Blocked Multi-Statement Injections: Multiple statements separated by semicolons rejected.
+  - Blocked Comment Tricks: Comments attempting to hide chained SQL queries caught and rejected.
+  - Blocked External File Reads: `read_csv`, `read_parquet`, and dynamic table readers blocked at the AST level.
+  - Enforced Table Allowlist: Access to unauthorized tables (`sqlite_master`, system tables, arbitrary tables) blocked.
+  - Forced `LIMIT 1000`: Queries without LIMIT have `LIMIT 1000` appended; limits exceeding 1000 are clamped to 1000.
+  - Legitimate CTEs: Verified that legitimate multi-stage queries using `WITH ... AS (...)` are permitted while retaining table allowlist constraints.
+- **Tests Passed:** All 24 unit tests across the test suite passed cleanly.
