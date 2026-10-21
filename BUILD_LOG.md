@@ -142,3 +142,8 @@ This log tracks every discrepancy, bug, failure mode, and resolution encountered
     - $\text{Volume} + \text{Rate} \equiv +\$40,847.98$ (Difference: 0.000000).
     - Sum of category deltas $\equiv +\$40,847.98$ (exact match).
 - **Tests Passed:** All 56 tests across all test modules passed.
+
+## Milestone 10: Documentation & Project Completion
+- **Date:** 2026-10-22
+- **Completed:** Authored comprehensive `README.md` covering project overview, 60-second interactive demo instructions, Mermaid system architecture diagram, evaluation progression across all 3 prompt iterations (raising accuracy from 84.4% to 93.8%), failure taxonomy with real-world debugging stories, verified resume bullet points backed by committed reports, and operational boundaries.
+- **Verification:** Full test suite run (`python -m pytest tests/ -v`) passed with all 56 tests green. Full eval harness runs for `v1`, `v2`, and `v3` verified and committed.
