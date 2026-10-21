@@ -126,3 +126,19 @@ This log tracks every discrepancy, bug, failure mode, and resolution encountered
   4. *Welch's T-Test:* Continuous metric comparison (AOV, Revenue per User) with unequal sample variances and Welch-Satterthwaite degrees of freedom.
 - **Verification:**
   - 10 hand-checked test cases passed, including clear winners (Ship), clear losers (Do Not Ship), inconclusive results, SRM detection, underpowered tests, and borderline p-values.
+
+## Milestone 9: Metric Movement Explainer & Skill Registry
+- **Date:** 2026-10-22
+- **Completed:** Implemented `copilot/skills/movement_explainer.py` with deterministic GMV decomposition (volume effect + rate effect $\equiv \Delta\text{GMV}$) and dimension driver ranking. Implemented `copilot/router.py` with a dynamic skill registry. Added `tests/test_movement_explainer.py`.
+- **What Broke (Router Hardcoding):**
+  - *Error:* `test_skill_registry_extensibility` failed because `route_intent` had static checks only for hardcoded skills rather than scanning dynamically registered skills.
+  - *How Found:* Pytest unit test failure in `tests/test_movement_explainer.py`.
+  - *How Fixed:* Refactored `route_intent` to iterate over all registered skills in `SKILL_REGISTRY`, allowing new skills to register dynamically without changing UI code.
+- **Decomposition Accuracy:**
+  - Tested September 2017 vs October 2017:
+    - $\Delta\text{GMV} = +\$40,847.98$
+    - Volume Effect: $+\$48,006.53$ (+328 delivered orders)
+    - AOV Effect: $-\$7,158.55$ ($-\$1.60$/order)
+    - $\text{Volume} + \text{Rate} \equiv +\$40,847.98$ (Difference: 0.000000).
+    - Sum of category deltas $\equiv +\$40,847.98$ (exact match).
+- **Tests Passed:** All 56 tests across all test modules passed.
