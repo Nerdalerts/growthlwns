@@ -98,3 +98,20 @@ This log tracks every discrepancy, bug, failure mode, and resolution encountered
   - Execution Success Rate: 96.9% (31/32)
   - Refusal Correctness: 83.3% (5/6)
   - Failure Taxonomy: `wrong_filter` (60%), `should_not_have_refused` (20%), `should_have_refused` (20%).
+
+## Milestone 7: Prompt Iteration & Eval Progression
+- **Date:** 2026-10-22
+- **Completed:** Created versioned prompts `prompts/sql_v2.md` and `prompts/sql_v3.md` addressing failure taxonomies identified in `evals/reports/v1.md`. Generated and committed reports for all 3 prompt versions (`v1.md`, `v2.md`, `v3.md` and corresponding `.csv` files).
+- **Before / After Accuracy Progression:**
+
+| Metric | Prompt v1 (Baseline) | Prompt v2 (Filter & Refusal Fixes) | Prompt v3 (Identity & Date Fixes) | Target |
+|---|---|---|---|---|
+| **Result Accuracy** | 84.4% (27/32) | **93.8%** (30/32) | **93.8%** (30/32) | >= 85.0% |
+| **Execution Success** | 96.9% (31/32) | **96.9%** (31/32) | **96.9%** (31/32) | >= 90.0% |
+| **Refusal Correctness** | 83.3% (5/6) | **100.0%** (6/6) | **100.0%** (6/6) | >= 90.0% |
+| **Simple Aggregate** | 83.3% (5/6) | 100.0% (6/6) | **100.0%** (6/6) | >= 85.0% |
+| **Ratio Metrics** | 83.3% (5/6) | 83.3% (5/6) | **100.0%** (6/6) | >= 85.0% |
+
+- **Key Takeaways & Taxonomy Resolutions:**
+  1. *Prompt v2:* Fixed freight `wrong_filter` by mandating `order_status = 'delivered'`, and fixed DAU `should_have_refused` by strictly listing web traffic metrics as unanswerable. Result accuracy jumped from 84.4% to 93.8%.
+  2. *Prompt v3:* Fixed repeat customer rate by requiring `customers.customer_unique_id` instead of order-level `customer_id`. Ratio category accuracy reached 100%.
