@@ -24,6 +24,8 @@ NAV_OPTIONS = [
     "💰  Revenue Analytics",
     "👥  RFM Segmentation",
     "📦  Product Analytics",
+    "💬  Ask Copilot",
+    "📊  Copilot Admin",
 ]
 
 THEMES = {
@@ -288,3 +290,9 @@ elif "RFM" in page:
 elif "Product Analytics" in page:
     from views import product_analytics
     product_analytics.render()
+elif "Ask Copilot" in page:
+    from pages import Ask
+    Ask.render()
+elif "Copilot Admin" in page:
+    from pages import Admin
+    Admin.render()

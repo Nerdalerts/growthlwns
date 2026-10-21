@@ -63,3 +63,24 @@ This log tracks every discrepancy, bug, failure mode, and resolution encountered
   - Forced `LIMIT 1000`: Queries without LIMIT have `LIMIT 1000` appended; limits exceeding 1000 are clamped to 1000.
   - Legitimate CTEs: Verified that legitimate multi-stage queries using `WITH ... AS (...)` are permitted while retaining table allowlist constraints.
 - **Tests Passed:** All 24 unit tests across the test suite passed cleanly.
+
+## Milestone 4 & 5: Metric Q&A Skill, Streamlit UI, & Logging Admin
+- **Date:** 2026-10-22
+- **Completed:**
+  - Created `prompts/sql_v1.md` with schema context, join pitfall prevention, and scope refusal rules.
+  - Implemented `copilot/logging_db.py` with SQLite table `usage_log`, tracking sessions, questions, SQL, success, latencies, tokens, and thumbs-up/down ratings.
+  - Implemented `copilot/skills/metric_qa.py` with AST validation, DuckDB execution, retry on query errors, and narrative number check (`check_narrative_numbers`).
+  - Created Streamlit pages `pages/Ask.py` and `pages/Admin.py`, and linked them cleanly in `app.py` navigation without disturbing existing dashboard views.
+  - Added unit test suites `tests/test_metric_qa.py` and `tests/test_logging.py`.
+- **What Broke (SQLite Query Syntax):**
+  - *Error:* `sqlite3.OperationalError: unrecognized token: ":"` when computing direct verification ratio in `test_logging.py`.
+  - *How Found:* Running pytest on `test_logging.py`.
+  - *How Fixed:* Replaced Postgres-style `::REAL` cast with SQLite standard `100.0 * COUNT(...) / COUNT(...)`.
+- **Deprecation Resolved:**
+  - Replaced deprecated `datetime.utcnow()` with `datetime.now(timezone.utc)` in `logging_db.py`.
+- **Verification:**
+  - 10 sample analytical questions tested end-to-end against DuckDB.
+  - Refusal behavior verified for out-of-scope metric (CAC) and malicious query (`DROP TABLE`).
+  - Narrative number check verified: prevents ungrounded numbers from displaying in narrative.
+  - Admin metrics verified to match direct SQL counts on `usage.db`.
+- **Tests Passed:** All 38 tests across all modules passed.
