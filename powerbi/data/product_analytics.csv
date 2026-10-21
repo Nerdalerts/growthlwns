@@ -1,0 +1,9 @@
+page,sessions,avg_time_sec,bounce_rate,exit_rate,scroll_depth,add_to_cart_rate
+Homepage,12574,174,0.4,0.21,0.55,0.0
+Category Page,17341,45,0.5,0.42,0.64,0.0
+PDP,51531,36,0.51,0.53,0.46,0.14
+Cart,48689,218,0.38,0.22,0.76,0.0
+Checkout,35689,49,0.53,0.35,0.72,0.0
+Account,53218,234,0.51,0.21,0.66,0.0
+Search Results,37131,188,0.53,0.4,0.35,0.0
+Blog,44638,125,0.35,0.41,0.62,0.0

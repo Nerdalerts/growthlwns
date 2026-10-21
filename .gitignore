@@ -1,0 +1,73 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Secrets & credentials (never commit) ──────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+kaggle.json
+**/kaggle.json
+.streamlit/secrets.toml
+secrets.toml
+credentials.json
+service-account*.json
+
+# ── Streamlit runtime ─────────────────────────────────────────────────────────
+.streamlit/cache/
+
+# ── Datasets (download via download_olist.py — do not commit CSVs) ────────────
+data/olist/*.csv
+data/olist_raw/*.csv
+data/olist/*.zip
+data/olist_raw/*.zip
+
+# Keep directory placeholders & docs
+!data/olist/README.txt
+!data/olist/.gitkeep
+!data/olist_raw/.gitkeep
+!data/olist_raw/README.txt
+
+# ── OS & IDE ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── Logs & temp ───────────────────────────────────────────────────────────────
+*.log
+logs/
+tmp/
+temp/
+*.duckdb
+*.duckdb.wal
+download_olist.py

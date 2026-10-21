@@ -1,0 +1,20 @@
+# GrowthLens Streamlit config — safe defaults for local development.
+# For Streamlit Cloud, these values are overridden by the platform.
+
+[server]
+headless = true
+# Bind to localhost only — avoids exposing the app on your LAN by default.
+# Set STREAMLIT_SERVER_ADDRESS=0.0.0.0 when you intentionally need remote access.
+address = "127.0.0.1"
+port = 8501
+enableCORS = true
+enableXsrfProtection = true
+maxUploadSize = 5
+
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+
+[client]
+showErrorDetails = false
+toolbarMode = "minimal"
