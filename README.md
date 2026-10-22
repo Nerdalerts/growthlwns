@@ -307,4 +307,4 @@ python -m evals.run --prompt-version v3
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is built by Adarsh | Delhi Technological Unioversity
