@@ -12,9 +12,9 @@ This folder contains the deliverables for the GrowthLens Redesign — Enterprise
 - **Figma File:** `[Insert Link to Figma]`
 - **Interactive Prototype:** `[Insert Link to Prototype]`
 
-## Next Steps (from PRD)
-1. Complete the UI Audit (Phase 1) by capturing screenshots of Cohort, Funnel, and A/B Testing modules in the current app.
-2. Build Design System foundations in Figma (Phase 2).
-3. Redesign the 3 core modules in Figma (Phase 3).
-4. Run Usability Sessions and log findings (Phase 4).
-5. Finalize writeup (Phase 5).
+## Project Status & Next Steps
+- [x] **Phase 1: UI Audit & Framing** — High-resolution screenshots captured for Cohort, Funnel, and A/B Testing modules, and usability/hierarchy critique documented in [01_Audit_and_Framing.md](./01_Audit_and_Framing.md) & [03_Case_Study_Writeup.md](./03_Case_Study_Writeup.md).
+- [ ] **Phase 2:** Build Design System foundations in Figma.
+- [ ] **Phase 3:** Redesign the 3 core modules in Figma based on the audit findings.
+- [ ] **Phase 4:** Run Usability Sessions and log findings in [02_Usability_Test_Kit.md](./02_Usability_Test_Kit.md).
+- [ ] **Phase 5:** Finalize case study writeup.
