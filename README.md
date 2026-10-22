@@ -268,8 +268,8 @@ pip install -r requirements.txt
 ### 3. Configure API Keys (Optional for Copilot)
 Create a `.env` file in the project root:
 ```env
-# Specify your preferred LLM provider (Anthropic, OpenAI, or Groq)
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
+Specify your preferred LLM provider (Anthropic, OpenAI, or Groq)
+API_KEY=your_api_key_here
 # or:
 # OPENAI_API_KEY=your_openai_api_key_here
 # or:
