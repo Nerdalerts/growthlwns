@@ -315,7 +315,11 @@ def run_evaluation(
 ) -> Dict[str, Any]:
     prompt_file = Path("prompts") / f"sql_{prompt_version}.md"
     if not prompt_file.exists():
-        prompt_file = Path("prompts") / "sql_v1.md"
+        prompt_file = Path("prompts") / "history" / f"sql_{prompt_version}.md"
+    if not prompt_file.exists():
+        prompt_file = Path("prompts") / "sql_system.md"
+    if not prompt_file.exists():
+        prompt_file = Path("prompts") / "history" / "sql_v1.md"
 
     questions = load_golden_set(golden_path)
     reports_dir.mkdir(parents=True, exist_ok=True)

@@ -14,7 +14,9 @@ from copilot.metrics import format_metrics_for_prompt, load_metrics
 from copilot.sql_guard import SQLGuardError, validate_and_sanitize_sql
 
 DEFAULT_DB_PATH = Path("data") / "olist.duckdb"
-PROMPT_V1_PATH = Path("prompts") / "sql_v1.md"
+DEFAULT_SYSTEM_PROMPT_PATH = Path("prompts") / "sql_system.md"
+# Backwards-compatible alias for legacy callers
+PROMPT_V1_PATH = DEFAULT_SYSTEM_PROMPT_PATH
 
 
 class LLMQueryResponse(BaseModel):
@@ -87,7 +89,7 @@ def check_narrative_numbers(narrative: str, df: pd.DataFrame) -> bool:
     return True
 
 
-def build_system_prompt(prompt_path: Path = PROMPT_V1_PATH) -> str:
+def build_system_prompt(prompt_path: Path = DEFAULT_SYSTEM_PROMPT_PATH) -> str:
     base_prompt = ""
     if prompt_path.exists():
         with open(prompt_path, "r", encoding="utf-8") as f:
@@ -154,7 +156,7 @@ def run_metric_qa(
     session_id: str = "default_session",
     db_path: Path = DEFAULT_DB_PATH,
     llm_client: Optional[LLMClient] = None,
-    system_prompt_path: Path = PROMPT_V1_PATH,
+    system_prompt_path: Path = DEFAULT_SYSTEM_PROMPT_PATH,
 ) -> MetricQAResult:
     start_time = time.time()
     client = llm_client or LLMClient()

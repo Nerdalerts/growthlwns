@@ -7,7 +7,7 @@ from copilot.logging_db import get_usage_dataframe
 from copilot.skills.metric_qa import check_narrative_numbers, run_metric_qa
 
 DB_PATH = Path("data") / "olist.duckdb"
-TEST_PROMPT_PATH = Path("prompts") / "sql_v1.md"
+TEST_PROMPT_PATH = Path("prompts") / "sql_system.md"
 
 # 10 ground truth query mock answers for end-to-end testing
 MOCK_RESPONSES = {
