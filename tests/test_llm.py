@@ -76,3 +76,20 @@ def test_llm_client_raises_after_max_retries_exceeded():
             response_model=SampleResponse,
             max_retries=1,
         )
+
+
+def test_gemini_provider_auto_detection(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "AIzaSyTestKey12345")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    config = LLMConfig.from_env()
+    assert config.provider == "gemini"
+    assert config.api_key == "AIzaSyTestKey12345"
+    assert "gemini" in config.model
+
+    # Also test auto-detecting a Gemini key placed under ANTHROPIC_API_KEY
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "AIzaSyTestKeyPastedUnderAnthropic")
+    config2 = LLMConfig.from_env()
+    assert config2.provider == "gemini"
+    assert config2.api_key == "AIzaSyTestKeyPastedUnderAnthropic"
+

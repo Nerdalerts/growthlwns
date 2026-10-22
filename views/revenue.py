@@ -31,6 +31,10 @@ def render():
 
     filtered = orders[orders["category"].isin(cat_filter) & orders["channel"].isin(ch_filter)]
 
+    if filtered.empty:
+        st.warning("No data found for the selected category/channel filters. Please select at least one category and channel above.")
+        return
+
     # --- Monthly aggregation ---
     monthly = filtered.groupby("month").agg(
         revenue=("revenue","sum"),
@@ -41,11 +45,15 @@ def render():
     monthly["month_str"] = monthly["month"].astype(str)
     monthly["mom_growth"] = monthly["revenue"].pct_change() * 100
 
+    if monthly.empty:
+        st.warning("No monthly aggregate data found for current filters.")
+        return
+
     # --- KPIs ---
     total_rev  = filtered["revenue"].sum()
     avg_aov    = filtered["revenue"].mean()
-    best_month = monthly.loc[monthly["revenue"].idxmax(), "month_str"]
-    peak_rev   = monthly["revenue"].max()
+    best_month = monthly.loc[monthly["revenue"].idxmax(), "month_str"] if monthly["revenue"].notna().any() else "N/A"
+    peak_rev   = monthly["revenue"].max() if monthly["revenue"].notna().any() else 0.0
 
     c1, c2, c3, c4 = st.columns(4)
     with c1: st.metric("Total Revenue", f"${total_rev:,.0f}")
